@@ -13,18 +13,19 @@ const {
   getMonthlyPlan,
 } = require('../controllers/tours/aggregates')
 const { aliasTopTour } = require('../controllers/tours/middleware')
-const { protect } = require('../controllers/auth/middleware')
+const { protect, restrictTo } = require('../controllers/auth/middleware')
 
+// Make sure to have protect middleware before using restrict to because it needs user coming from request at protect route to authorize user role
 router.get('/', protect, getAllTours)
 router.get('/top-tour', aliasTopTour, getAllTours)
 router.get('/tour-stats', getTourStats)
 router.get('/monthly-plan/:year', getMonthlyPlan)
 router.get('/:id', getTour)
 
-router.post('/', addTour)
+router.post('/', protect, restrictTo('admin', 'lead-guide'), addTour)
 
-router.patch('/:id', updateTour)
+router.patch('/:id', protect, restrictTo('admin', 'lead-guide'), updateTour)
 
-router.delete('/:id', deleteTour)
+router.delete('/:id', protect, restrictTo('admin'), deleteTour)
 
 module.exports = router
