@@ -95,16 +95,16 @@ ToursSchema.pre('save', function (next) {
 // })
 
 // Make sure it applies to every query starts with find
-ToursSchema.pre(/^find/, function (next) {
-  this.find({ secret: { $ne: true } })
-  this.start = Date.now()
-  next()
-})
+// ToursSchema.pre(/^find/, function (next) {
+//   this.find({ secret: { $ne: true } })
+//   this.start = Date.now()
+//   next()
+// })
 
-ToursSchema.post(/^find/, function (docs, next) {
-  console.log(`Request took ${Date.now() - this.start} ms`)
-  next()
-})
+// ToursSchema.post(/^find/, function (docs, next) {
+//   console.log(`Request took ${Date.now() - this.start} ms`)
+//   next()
+// })
 
 // Aggregate middleware
 ToursSchema.pre('aggregate', function (next) {

@@ -36,6 +36,7 @@ const UserSchema = mongoose.Schema({
       message: 'Passwords do not match',
     },
   },
+  passwordChangedAt: Date,
 })
 
 UserSchema.pre('save', async function (next) {
@@ -49,6 +50,18 @@ UserSchema.methods.validatePassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword)
+}
+
+UserSchema.methods.getPasswordChangedAt = function (JWTTimestamps) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    )
+    return JWTTimestamps < changedTimestamp
+  }
+  // Default should be false to user has never changed password
+  return false
 }
 
 module.exports = mongoose.model('User', UserSchema)

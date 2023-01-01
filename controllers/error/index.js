@@ -1,21 +1,10 @@
-const AppError = require('../../utils/appError')
-
-const handleCastErrorDB = (err) => {
-  const message = `Invalid ${err.path}: ${err.value}.`
-  return new AppError(message, 400)
-}
-
-const handleDuplicateErrorDB = (err) => {
-  const value = err.errmsg.match(/(["'])(?:(?=(\\?))\2.)*?\1/)[0]
-  const message = `Duplicate field: ${value}`
-  return new AppError(message, 400)
-}
-
-const handleValidatorErrorDB = (err) => {
-  const errors = Object.values(err.errors).map((el) => el.message)
-  const message = `Invalid input data. ${errors.join('. ')}`
-  return new AppError(message, 400)
-}
+const {
+  handleCastErrorDB,
+  handleDuplicateErrorDB,
+  handleValidatorErrorDB,
+  handleJWTInvalidToken,
+  handleJWTExpiredToken,
+} = require('./handleSpecificError')
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -55,9 +44,13 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err }
     error.message = err.message
+    // Capture error from mongoose
     if (err.name === 'CastError') error = handleCastErrorDB(err)
     if (err.code === 11000) error = handleDuplicateErrorDB(err)
     if (err.name === 'ValidationError') error = handleValidatorErrorDB(err)
+    // Capture error from JWT
+    if (err.name === 'JsonWebTokenError') error = handleJWTInvalidToken()
+    if (err.name === 'TokenExpiredError') error = handleJWTExpiredToken()
     sendErrorProd(error, res)
   }
 }
