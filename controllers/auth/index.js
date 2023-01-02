@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const User = require('../../models/User')
 const catchAsync = require('../../utils/catchAsync')
 const AppError = require('../../utils/appError')
@@ -9,6 +10,25 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   })
 
+const sendToken = (user, message, statusCode, res, showData = false) => {
+  const token = signToken(user._id)
+
+  if (!showData) {
+    return res.status(statusCode).json({
+      message,
+      token,
+    })
+  }
+
+  res.status(statusCode).json({
+    message,
+    token,
+    data: {
+      user,
+    },
+  })
+}
+
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -18,15 +38,7 @@ const signup = catchAsync(async (req, res, next) => {
     passwordChangedAt: req.body.passwordChangedAt,
   })
 
-  const token = signToken(newUser._id)
-
-  res.status(201).json({
-    message: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  })
+  sendToken(newUser, 'User created successfully', 201, res, true)
 })
 
 const login = catchAsync(async (req, res, next) => {
@@ -44,12 +56,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Wrong password', 401))
   }
 
-  const token = signToken(user._id)
-
-  res.status(200).json({
-    status: 'success',
-    token,
-  })
+  sendToken(user, 'Logged in successfully', 200, res)
 })
 
 const forgotPassword = catchAsync(async (req, res, next) => {
@@ -90,6 +97,65 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   })
 })
 
-const resetPassword = (req, res, next) => {}
+const resetPassword = catchAsync(async (req, res, next) => {
+  // 1) Get the user by reset token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.resetToken)
+    .digest('hex')
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  })
+  if (!user) {
+    return next(
+      new AppError('Token is invalid or expired. Please try again', 400)
+    )
+  }
 
-module.exports = { signup, login, forgotPassword, resetPassword }
+  // 2) Set new password
+  user.password = req.body.password
+  user.passwordConfirm = req.body.passwordConfirm
+  user.passwordResetToken = undefined
+  user.passwordResetExpires = undefined
+  await user.save()
+
+  // 3) Create JWT and log user in
+  sendToken(user, 'Password has been updated successfully', 200, res)
+})
+
+const updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Find user
+  const user = await User.findById(req.user._id).select('+password')
+  if (!user) {
+    return next(new AppError('You are not authenticated. Please login first.'))
+  }
+
+  // 2) Check password
+  const isPasswordCorrect = await user.validatePassword(
+    req.body.oldPassword,
+    user.password
+  )
+  if (!isPasswordCorrect) {
+    return next(
+      new AppError('Old password is incorrect. Please try again'),
+      401
+    )
+  }
+
+  // 3) Change password
+  user.password = req.body.password
+  user.passwordConfirm = req.body.passwordConfirm
+  await user.save()
+
+  // 4) Send JWT, log user in
+  sendToken(user, 'Password has been updated successfully', 200, res)
+})
+
+module.exports = {
+  signup,
+  login,
+  forgotPassword,
+  resetPassword,
+  updatePassword,
+}

@@ -30,11 +30,13 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
     select: false,
+    minLength: 8,
   },
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
     // Only works with SAVE, update the password will not validate
+    // As the result, over the project we don't use findByIdAndUpdate,...
     validate: {
       validator: function (el) {
         return el === this.password
@@ -51,6 +53,14 @@ UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
   this.password = await bcrypt.hash(this.password, 12)
   this.passwordConfirm = undefined
+})
+
+// Middleware for changing passwordChangedAt time, only runs when password changed, not include the first time document created
+UserSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next()
+  // create new token may take some time so that we make sure the time password is updated a little bit sooner the real time
+  this.passwordChangedAt = Date.now() - 5000
+  next()
 })
 
 UserSchema.methods.validatePassword = async function (

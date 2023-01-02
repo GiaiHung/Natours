@@ -1,22 +1,13 @@
 const express = require('express')
-const {
-  signup,
-  login,
-  forgotPassword,
-  resetPassword,
-} = require('../controllers/auth')
-const { getAllUsers } = require('../controllers/users')
+const { getAllUsers, editProfile, updateUser } = require('../controllers/users')
+const { protect } = require('../controllers/auth/middleware')
 
 const router = express.Router()
 
-// AUTHENTICATION
-router.post('/signup', signup)
-router.post('/login', login)
-router.post('/forgotPassword', forgotPassword)
-
-router.patch('/resetPassword/:resetToken', resetPassword)
-
 // USERS CRUD
 router.get('/', getAllUsers)
+
+router.put('/updateUser', updateUser)
+router.put('/editProfile', protect, editProfile)
 
 module.exports = router

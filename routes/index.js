@@ -1,11 +1,13 @@
 const toursRouter = require('./tours')
-const usersRouter = require('./users')
+const authRouter = require('./auth')
+const userRouter = require('./users')
 const AppError = require('../utils/appError')
 const errorHandler = require('../controllers/error')
 
 const route = (app) => {
   app.use('/api/v1/tours', toursRouter)
-  app.use('/api/v1/users', usersRouter)
+  app.use('/api/v1/auth', authRouter)
+  app.use('/api/v1/users', userRouter)
   // Handling not found routes
   app.all('*', (req, res, next) => {
     next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404))
