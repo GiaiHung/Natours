@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 
 const UserSchema = mongoose.Schema({
   name: {
@@ -42,6 +43,8 @@ const UserSchema = mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 })
 
 UserSchema.pre('save', async function (next) {
@@ -67,6 +70,16 @@ UserSchema.methods.getPasswordChangedAt = function (JWTTimestamps) {
   }
   // Default should be false to user has never changed password
   return false
+}
+
+UserSchema.methods.createResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex')
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000
+  return resetToken
 }
 
 module.exports = mongoose.model('User', UserSchema)
