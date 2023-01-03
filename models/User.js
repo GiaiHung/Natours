@@ -47,6 +47,18 @@ const UserSchema = mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
+})
+
+// Query middleware for not showing deleted users by active field
+UserSchema.pre(/^find/, async function (next) {
+  // THIS points to query
+  this.find({ active: { $ne: false } })
+  next()
 })
 
 UserSchema.pre('save', async function (next) {

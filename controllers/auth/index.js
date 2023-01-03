@@ -12,6 +12,16 @@ const signToken = (id) =>
 
 const sendToken = (user, message, statusCode, res, showData = false) => {
   const token = signToken(user._id)
+  const cookieOptions = {
+    expiresIn: Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  }
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true
+
+  res.cookie('token', token, cookieOptions)
+
+  user.password = undefined
+  user.active = undefined
 
   if (!showData) {
     return res.status(statusCode).json({
