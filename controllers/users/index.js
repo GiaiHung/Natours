@@ -2,22 +2,7 @@ const User = require('../../models/User')
 const AppError = require('../../utils/appError')
 const catchAsync = require('../../utils/catchAsync')
 const { filterObj } = require('./helper')
-const { deleteOne } = require('../handler')
-
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find()
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      users,
-    },
-  })
-})
-
-// Used for admin
-const updateUser = catchAsync(async (req, res, next) => {
-  res.status(200).json('Hello world')
-})
+const { deleteOne, updateOne, getOne, getAll } = require('../handler')
 
 const editProfile = catchAsync(async (req, res, next) => {
   // 1) Make sure user can't change their password
@@ -54,6 +39,17 @@ const deleteMe = catchAsync(async (req, res, next) => {
   })
 })
 
+// Used for admin, DO NOT UPDATE PASSWORD
+const getAllUsers = getAll(User)
+const getUser = getOne(User)
+const updateUser = updateOne(User)
 const deleteUser = deleteOne(User)
 
-module.exports = { getAllUsers, updateUser, editProfile, deleteUser, deleteMe }
+module.exports = {
+  getAllUsers,
+  getUser,
+  updateUser,
+  editProfile,
+  deleteUser,
+  deleteMe,
+}
