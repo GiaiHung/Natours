@@ -49,7 +49,6 @@ const restrictTo =
   (...roles) =>
   (req, res, next) => {
     // Roles: ['user', 'guide', 'lead-guide', 'admin']
-    console.log(roles)
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permissions to take the action', 403)

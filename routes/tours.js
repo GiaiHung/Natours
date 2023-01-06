@@ -14,6 +14,10 @@ const {
 } = require('../controllers/tours/aggregates')
 const { aliasTopTour } = require('../controllers/tours/middleware')
 const { protect, restrictTo } = require('../controllers/auth/middleware')
+const reviewRouter = require('./reviews')
+
+// Nested route
+router.use('/:tourId/reviews', reviewRouter)
 
 // Make sure to have protect middleware before using restrict to because it needs user coming from request at protect route to authorize user role
 router.get('/', protect, getAllTours)

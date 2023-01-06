@@ -1,12 +1,15 @@
 const fs = require('fs')
+const Review = require('../../models/Review')
 const Tour = require('../../models/Tours')
 
 const importData = async () => {
   try {
-    const data = JSON.parse(
-      fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
+    // const tourData = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'))
+    // await Tour.create(tourData)
+    const reviewData = JSON.parse(
+      fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
     )
-    await Tour.create(data)
+    await Review.create(reviewData)
     console.log('Data uploaded successfully')
   } catch (error) {
     console.log(error.message)

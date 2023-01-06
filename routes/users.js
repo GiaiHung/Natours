@@ -4,6 +4,7 @@ const {
   editProfile,
   updateUser,
   deleteMe,
+  deleteUser,
 } = require('../controllers/users')
 const { protect } = require('../controllers/auth/middleware')
 
@@ -16,5 +17,6 @@ router.put('/updateUser', updateUser)
 router.put('/editProfile', protect, editProfile)
 
 router.delete('/deleteMe', protect, deleteMe)
+router.delete('/:id', deleteUser)
 
 module.exports = router

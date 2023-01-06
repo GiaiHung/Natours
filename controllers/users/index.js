@@ -2,6 +2,7 @@ const User = require('../../models/User')
 const AppError = require('../../utils/appError')
 const catchAsync = require('../../utils/catchAsync')
 const { filterObj } = require('./helper')
+const { deleteOne } = require('../handler')
 
 const getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find()
@@ -53,4 +54,6 @@ const deleteMe = catchAsync(async (req, res, next) => {
   })
 })
 
-module.exports = { getAllUsers, updateUser, editProfile, deleteMe }
+const deleteUser = deleteOne(User)
+
+module.exports = { getAllUsers, updateUser, editProfile, deleteUser, deleteMe }

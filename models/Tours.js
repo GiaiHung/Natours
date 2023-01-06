@@ -76,6 +76,31 @@ const ToursSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        // GeoJSON
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -83,11 +108,24 @@ const ToursSchema = new mongoose.Schema(
   }
 )
 
+// Virtual properties
+ToursSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+})
+
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 ToursSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true })
   next()
 })
+
+// ToursSchema.pre('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id))
+//   this.guides = await Promise.all(guidesPromises)
+//   next()
+// })
 
 // Virtual properties
 // ToursSchema.virtual('durationWeeks').get(function () {
@@ -106,10 +144,19 @@ ToursSchema.pre('save', function (next) {
 //   next()
 // })
 
+// Populate reference
+ToursSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  })
+  next()
+})
+
 // Aggregate middleware
 ToursSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secret: { $ne: true } } })
   next()
 })
 
-module.exports = mongoose.model('tours', ToursSchema)
+module.exports = mongoose.model('Tour', ToursSchema)
