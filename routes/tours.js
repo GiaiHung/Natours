@@ -7,6 +7,7 @@ const {
   addTour,
   updateTour,
   deleteTour,
+  getToursWithin,
 } = require('../controllers/tours')
 const {
   getTourStats,
@@ -29,6 +30,7 @@ router.get(
   restrictTo('admin', 'lead-guide', 'guide'),
   getMonthlyPlan
 )
+router.get('/tours-wihthin/:distance/center/:latlng/unit/:unit', getToursWithin)
 router.get('/:id', getTour)
 
 router.post('/', protect, restrictTo('admin', 'lead-guide'), addTour)
