@@ -8,4 +8,9 @@ const filterObj = (obj, ...allowedFields) => {
   return filteredObj
 }
 
-module.exports = { filterObj }
+const getMe = (req, res, next) => {
+  req.params.id = req.user._id
+  next()
+}
+
+module.exports = { filterObj, getMe }

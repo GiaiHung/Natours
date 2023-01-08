@@ -108,6 +108,10 @@ const ToursSchema = new mongoose.Schema(
   }
 )
 
+// Indexes
+ToursSchema.index({ price: 1, ratingsAverage: -1 })
+ToursSchema.index({ slug: 1 })
+
 // Virtual properties
 ToursSchema.virtual('reviews', {
   ref: 'Review',

@@ -20,10 +20,15 @@ const reviewRouter = require('./reviews')
 router.use('/:tourId/reviews', reviewRouter)
 
 // Make sure to have protect middleware before using restrict to because it needs user coming from request at protect route to authorize user role
-router.get('/', protect, getAllTours)
+router.get('/', getAllTours)
 router.get('/top-tour', aliasTopTour, getAllTours)
 router.get('/tour-stats', getTourStats)
-router.get('/monthly-plan/:year', getMonthlyPlan)
+router.get(
+  '/monthly-plan/:year',
+  protect,
+  restrictTo('admin', 'lead-guide', 'guide'),
+  getMonthlyPlan
+)
 router.get('/:id', getTour)
 
 router.post('/', protect, restrictTo('admin', 'lead-guide'), addTour)

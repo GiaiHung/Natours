@@ -11,19 +11,15 @@ const { sendTourIdAndUser } = require('../controllers/reviews/middleware')
 
 // Make sure we still get params from nested routes
 const router = express.Router({ mergeParams: true })
+router.use(protect)
+
 router.get('/', getAllReviews)
 router.get('/:id', getReview)
 
-router.post('/', protect, restrictTo('user'), sendTourIdAndUser, createReview)
+router.use(restrictTo('user', 'admin'))
 
+router.post('/', sendTourIdAndUser, createReview)
 router.delete('/:id', deleteReview)
-
-router.patch(
-  '/:id',
-  protect,
-  restrictTo('user'),
-  sendTourIdAndUser,
-  updateReview
-)
+router.patch('/:id', sendTourIdAndUser, updateReview)
 
 module.exports = router
