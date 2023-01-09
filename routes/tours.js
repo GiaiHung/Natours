@@ -8,6 +8,7 @@ const {
   updateTour,
   deleteTour,
   getToursWithin,
+  getTourDistances,
 } = require('../controllers/tours')
 const {
   getTourStats,
@@ -30,13 +31,15 @@ router.get(
   restrictTo('admin', 'lead-guide', 'guide'),
   getMonthlyPlan
 )
-router.get('/tours-wihthin/:distance/center/:latlng/unit/:unit', getToursWithin)
+router.get('/tours-within/:distance/center/:latlng/unit/:unit', getToursWithin)
+router.get('/distances/:latlng/unit/:unit', getTourDistances)
 router.get('/:id', getTour)
 
-router.post('/', protect, restrictTo('admin', 'lead-guide'), addTour)
+router.use(protect)
+router.post('/', restrictTo('admin', 'lead-guide'), addTour)
 
-router.patch('/:id', protect, restrictTo('admin', 'lead-guide'), updateTour)
+router.patch('/:id', restrictTo('admin', 'lead-guide'), updateTour)
 
-router.delete('/:id', protect, restrictTo('admin'), deleteTour)
+router.delete('/:id', restrictTo('admin'), deleteTour)
 
 module.exports = router

@@ -1,6 +1,7 @@
 require('dotenv').config()
 require('colors')
 const express = require('express')
+const path = require('path')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const rateLimit = require('express-rate-limit')
@@ -27,6 +28,13 @@ const passwordLimiter = rateLimit({
     'You have tried logged in so many times. Please try again in 10 minutes.',
   windowMs: 10 * 60 * 1000,
 })
+
+// Template engine
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Set secure HTTP headers
 app.use(helmet())

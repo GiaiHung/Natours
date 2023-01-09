@@ -160,9 +160,9 @@ ToursSchema.pre(/^find/, function (next) {
 })
 
 // Aggregate middleware
-ToursSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secret: { $ne: true } } })
-  next()
-})
+// ToursSchema.pre('aggregate', function (next) {
+//   this.pipeline().unshift({ $match: { secret: { $ne: true } } })
+//   next()
+// })
 
 module.exports = mongoose.model('Tour', ToursSchema)
