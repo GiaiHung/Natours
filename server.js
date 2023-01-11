@@ -9,9 +9,14 @@ const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
+const cookieParser = require('cookie-parser')
 const route = require('./routes')
 const connect = require('./db/connect')
 const handleRejection = require('./utils/handleRejections')
+const {
+  contentSecurityPolicy,
+  hppWhitelist,
+} = require('./utils/middlewareConfig')
 // const { importData, deleteData } = require('./dev-data/data/import-data')
 
 handleRejection()
@@ -37,29 +42,20 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, 'public')))
 
 // Set secure HTTP headers
-app.use(helmet())
+
+app.use(helmet.contentSecurityPolicy(contentSecurityPolicy))
 // Set limit on requests
 app.use('/api', limiter)
 app.use('/api/v1/auth/login', passwordLimiter)
 // Parse the body from request into usable req.body, limit the data receive
 app.use(express.json({ limit: '20kb' }))
+app.use(cookieParser())
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize())
 // Data sanitization against XSS, prevent HTML or JS code
 app.use(xss())
 // Prevent http parameters pollution, duplicate sort,...
-app.use(
-  hpp({
-    whitelist: [
-      'duration',
-      'ratingsQuantity',
-      'ratingsAverage',
-      'maxGroupSize',
-      'difficulty',
-      'price',
-    ],
-  })
-)
+app.use(hpp(hppWhitelist))
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }

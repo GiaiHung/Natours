@@ -23,4 +23,10 @@ const getTour = catchAsync(async (req, res) => {
   })
 })
 
-module.exports = { getOverview, getTour }
+const login = catchAsync(async (req, res) => {
+  res.status(200).render('login', {
+    title: 'Login to your account',
+  })
+})
+
+module.exports = { getOverview, getTour, login }

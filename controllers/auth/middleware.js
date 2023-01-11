@@ -5,13 +5,16 @@ const catchAsync = require('../../utils/catchAsync')
 const User = require('../../models/User')
 
 const protect = catchAsync(async (req, res, next) => {
-  // 1) Check if the token is in headers
+  // 1) Check if the token is in headers and cookies
   let token
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1]
+  } else if (req.cookies.token) {
+    // eslint-disable-next-line prefer-destructuring
+    token = req.cookies.token
   }
   if (!token)
     return next(
