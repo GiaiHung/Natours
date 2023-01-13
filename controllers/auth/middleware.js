@@ -60,4 +60,37 @@ const restrictTo =
     next()
   }
 
-module.exports = { protect, restrictTo }
+const isLoggedIn = async (req, res, next) => {
+  try {
+    if (req.cookies.token) {
+      // 2) Verify token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.token,
+        process.env.JWT_SECRET
+      )
+
+      // 3) Check whether user stills exist after the token has been sent by that user
+      // In case that account has been deleted, then the token would not be valid
+      const user = await User.findById(decoded.id)
+      if (!user) {
+        return next()
+      }
+
+      // 4) Check if user has changed their password
+      // In case that user recognized strange login, they change their password for security
+      // Then the previous token would not be valid
+      if (user.getPasswordChangedAt(decoded.iat)) {
+        return next()
+      }
+
+      // Pug templates will be able to access locals
+      res.locals.user = user
+      return next()
+    }
+  } catch (error) {
+    return next()
+  }
+  next()
+}
+
+module.exports = { protect, restrictTo, isLoggedIn }

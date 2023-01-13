@@ -69,6 +69,15 @@ const login = catchAsync(async (req, res, next) => {
   sendToken(user, 'Logged in successfully', 200, res)
 })
 
+const logout = (req, res) => {
+  // The way we log out user is send another cookie same name to overwrite the existing one
+  res.cookie('token', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  })
+  res.status(200).json({ status: 'success' })
+}
+
 const forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user
   const { email } = req.body
@@ -165,6 +174,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
 module.exports = {
   signup,
   login,
+  logout,
   forgotPassword,
   resetPassword,
   updatePassword,
