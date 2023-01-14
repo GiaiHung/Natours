@@ -18,7 +18,7 @@ const handleValidatorErrorDB = (err) => {
 }
 
 const handleJWTInvalidToken = () =>
-  new AppError('Invalid token, please login again', 401)
+  new AppError('Please login to access this page!', 401)
 
 const handleJWTExpiredToken = () =>
   new AppError('Your access has timed out', 401)

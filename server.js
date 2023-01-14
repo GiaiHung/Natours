@@ -50,6 +50,7 @@ app.use('/api/v1/auth/login', passwordLimiter)
 // Parse the body from request into usable req.body, limit the data receive
 app.use(express.json({ limit: '20kb' }))
 app.use(cookieParser())
+app.use(express.urlencoded({ extended: true, limit: '20kb' }))
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize())
 // Data sanitization against XSS, prevent HTML or JS code

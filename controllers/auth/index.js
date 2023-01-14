@@ -25,12 +25,14 @@ const sendToken = (user, message, statusCode, res, showData = false) => {
 
   if (!showData) {
     return res.status(statusCode).json({
+      status: 'success',
       message,
       token,
     })
   }
 
   res.status(statusCode).json({
+    status: 'success',
     message,
     token,
     data: {

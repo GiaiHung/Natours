@@ -19,7 +19,7 @@ const UserSchema = mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'https://i.ibb.co/4pDNDk1/avatar.png',
+    default: 'default.jpg',
   },
   role: {
     type: String,

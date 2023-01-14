@@ -6,6 +6,8 @@ const {
   deleteMe,
   deleteUser,
   getUser,
+  uploadUserPhoto,
+  resizeUserPhoto,
 } = require('../controllers/users')
 const { protect, restrictTo } = require('../controllers/auth/middleware')
 const { getMe } = require('../controllers/users/helper')
@@ -16,7 +18,7 @@ router.use(protect)
 
 // USERS CRUD
 router.get('/me', getMe, getUser)
-router.patch('/updateMe', editProfile)
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, editProfile)
 router.delete('/deleteMe', deleteMe)
 
 router.use(restrictTo('admin'))
