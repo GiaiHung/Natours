@@ -31,7 +31,7 @@ const uploadUserPhoto = upload.single('photo')
 const resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next()
 
-  req.file.filename = `user-${req.user._id}-${Date.now()}`
+  req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`
 
   // sharp can access buffer and modify the user uploaded file
   await sharp(req.file.buffer)
