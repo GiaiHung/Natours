@@ -28,20 +28,20 @@ const multerFilter = (req, file, cb) => {
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter })
 const uploadUserPhoto = upload.single('photo')
 
-const resizeUserPhoto = (req, res, next) => {
+const resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next()
 
   req.file.filename = `user-${req.user._id}-${Date.now()}`
 
   // sharp can access buffer and modify the user uploaded file
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
     .toFile(`public/img/users/${req.file.filename}`)
 
   next()
-}
+})
 
 const editProfile = catchAsync(async (req, res, next) => {
   // 1) Make sure user can't change their password
