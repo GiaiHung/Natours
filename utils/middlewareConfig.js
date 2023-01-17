@@ -15,11 +15,13 @@ const scriptSrcUrls = [
   'https://api.tiles.mapbox.com/',
   'https://api.mapbox.com/',
   'https://cdnjs.cloudflare.com/',
+  'https://js.stripe.com/v3/',
 ]
 const styleSrcUrls = [
   'https://api.mapbox.com/',
   'https://api.tiles.mapbox.com/',
   'https://fonts.googleapis.com/',
+  'https://js.stripe.com/v3/',
 ]
 const connectSrcUrls = [
   'https://api.mapbox.com/',
@@ -39,6 +41,7 @@ const contentSecurityPolicy = {
     objectSrc: [],
     imgSrc: ["'self'", 'blob:', 'data:'],
     fontSrc: ["'self'", ...fontSrcUrls],
+    frameSrc: ["'self'", 'https://js.stripe.com/'],
   },
 }
 
