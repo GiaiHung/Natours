@@ -9,7 +9,7 @@ const {
   addBooking,
 } = require('../controllers/booking')
 
-const router = express.Router()
+const router = express.Router({ mergeParams: true })
 
 router.get('/checkout-session/:tourId', protect, getCheckourSession)
 // BOOKING CRUD'

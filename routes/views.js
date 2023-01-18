@@ -7,6 +7,7 @@ const {
   login,
   getMe,
   getMyTours,
+  signup,
 } = require('../controllers/views')
 
 const router = express.Router()
@@ -19,6 +20,7 @@ router.use(isLoggedIn)
 router.get('/', createBookingCheckout, getOverview)
 router.get('/tour/:slug', getTour)
 router.get('/login', login)
+router.get('/signup', signup)
 router.get('/my-tours', protect, getMyTours)
 
 module.exports = router

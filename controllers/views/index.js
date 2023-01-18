@@ -34,6 +34,12 @@ const login = catchAsync(async (req, res) => {
   })
 })
 
+const signup = catchAsync(async (req, res) => {
+  res.status(200).render('signup', {
+    title: 'Create yout account',
+  })
+})
+
 const getMe = catchAsync(async (req, res) => {
   res.status(200).render('me', {
     title: 'Your account',
@@ -51,4 +57,4 @@ const getMyTours = catchAsync(async (req, res, next) => {
   })
 })
 
-module.exports = { getOverview, getTour, login, getMe, getMyTours }
+module.exports = { getOverview, getTour, login, signup, getMe, getMyTours }
