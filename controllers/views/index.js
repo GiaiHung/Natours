@@ -15,6 +15,7 @@ const getOverview = catchAsync(async (req, res) => {
 })
 
 const getTour = catchAsync(async (req, res, next) => {
+  let isBooked = {}
   const tour = await Tours.findOne({ slug: req.params.slug }).populate({
     path: 'reviews',
     fields: 'rating user review',
@@ -22,9 +23,17 @@ const getTour = catchAsync(async (req, res, next) => {
   if (!tour) {
     return next(new AppError('No tour found. Please try again.', 404))
   }
+  if (req.user) {
+    isBooked = await Booking.findOne({
+      user: req.user._id,
+      tour: tour._id,
+    })
+    if (isBooked === null) isBooked = {}
+  }
   res.status(200).render('tour', {
     title: tour.name,
     tour,
+    isBooked: Object.keys(isBooked).length > 0,
   })
 })
 

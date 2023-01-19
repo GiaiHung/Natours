@@ -3,13 +3,8 @@ const Tours = require('../../models/Tours')
 const Booking = require('../../models/Booking')
 // const AppError = require('../../utils/appError')
 const catchAsync = require('../../utils/catchAsync')
-const {
-  getAll,
-  getOne,
-  createOne,
-  updateOne,
-  deleteOne,
-} = require('../handler')
+const { getAll, getOne, updateOne, deleteOne } = require('../handler')
+const AppError = require('../../utils/appError')
 
 const getCheckourSession = catchAsync(async (req, res, next) => {
   const tour = await Tours.findById(req.params.tourId)
@@ -56,9 +51,27 @@ const createBookingCheckout = catchAsync(async (req, res, next) => {
   res.redirect(req.originalUrl.split('?')[0])
 })
 
+const addBooking = catchAsync(async (req, res, next) => {
+  const existingBooking = await Booking.countDocuments({
+    tour: req.body.tour,
+    user: req.body.user,
+  })
+
+  if (existingBooking > 0) {
+    return next(new AppError('User already booked this tour!', 400))
+  }
+
+  const doc = await Booking.create(req.body)
+  res.status(201).json({
+    status: 'success',
+    data: {
+      doc,
+    },
+  })
+})
+
 const getAllBookings = getAll(Booking)
 const getBooking = getOne(Booking)
-const addBooking = createOne(Booking)
 const updateBooking = updateOne(Booking)
 const deleteBooking = deleteOne(Booking)
 

@@ -85,6 +85,7 @@ const isLoggedIn = async (req, res, next) => {
 
       // Pug templates will be able to access locals
       res.locals.user = user
+      req.user = user
       return next()
     }
   } catch (error) {
