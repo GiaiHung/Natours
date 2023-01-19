@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config()
 require('colors')
 const express = require('express')
@@ -10,6 +11,7 @@ const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
+const compression = require('compression')
 const route = require('./routes')
 const connect = require('./db/connect')
 const handleRejection = require('./utils/handleRejections')
@@ -60,6 +62,7 @@ app.use(hpp(hppWhitelist))
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
+app.use(compression())
 
 route(app)
 

@@ -1,5 +1,5 @@
-const fs = require('fs')
-const Review = require('../../models/Review')
+// const fs = require('fs')
+// const Review = require('../../models/Review')
 const User = require('../../models/User')
 // const Tour = require('../../models/Tours')
 
@@ -11,10 +11,10 @@ const importData = async () => {
     //   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
     // )
     // await Review.create(reviewData)
-    const userData = JSON.parse(
-      fs.readFileSync(`${__dirname}/users.json`, 'utf-8')
-    )
-    await User.create(userData, { validateBeforeSave: false })
+    // const userData = JSON.parse(
+    //   fs.readFileSync(`${__dirname}/users.json`, 'utf-8')
+    // )
+    // await User.create(userData, { validateBeforeSave: false })
     console.log('Data uploaded successfully')
   } catch (error) {
     console.log(error.message)

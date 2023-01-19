@@ -20,7 +20,7 @@ async function login(email, password) {
   try {
     const res = await axios({
       method: 'POST',
-      url: 'http://localhost:5000/api/v1/auth/login',
+      url: '/api/v1/auth/login',
       data: {
         email,
         password,
@@ -42,7 +42,7 @@ async function signup(name, email, password, passwordConfirm) {
   try {
     const res = await axios({
       method: 'POST',
-      url: 'http://localhost:5000/api/v1/auth/signup',
+      url: '/api/v1/auth/signup',
       data: {
         name,
         email,
@@ -66,7 +66,7 @@ async function logout() {
   try {
     const res = await axios({
       method: 'GET',
-      url: 'http://localhost:5000/api/v1/auth/logout',
+      url: '/api/v1/auth/logout',
     })
 
     if (res.status === 200) location.reload(true)
