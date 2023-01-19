@@ -12,6 +12,7 @@ const xss = require('xss-clean')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
 const compression = require('compression')
+const cors = require('cors')
 const route = require('./routes')
 const connect = require('./db/connect')
 const handleRejection = require('./utils/handleRejections')
@@ -35,6 +36,12 @@ const passwordLimiter = rateLimit({
     'You have tried logged in so many times. Please try again in 10 minutes.',
   windowMs: 10 * 60 * 1000,
 })
+
+// Implement CORS, also handle none-simple requests and preflight requests
+app.use(cors())
+app.options('*', cors())
+// Or you can specifically available route for none-simple request by:
+// app.option('/api/v1/tours, cors())
 
 // Template engine
 app.set('view engine', 'pug')
