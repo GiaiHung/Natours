@@ -10,13 +10,15 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   })
 
-const sendToken = (user, message, statusCode, res, showData = false) => {
+const sendToken = (user, message, statusCode, req, res, showData = false) => {
   const token = signToken(user._id)
   const cookieOptions = {
     expiresIn: Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure:
+      process.env.NODE_ENV === 'production' ||
+      req.headers['x-forwarded-proto'] === 'https',
   }
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true
 
   res.cookie('token', token, cookieOptions)
 
@@ -53,7 +55,7 @@ const signup = catchAsync(async (req, res, next) => {
   // const url = `${req.protocol}://${req.get('host')}/me`
   // await new Email(newUser, url).sendWelcome()
 
-  sendToken(newUser, 'User created successfully', 201, res, true)
+  sendToken(newUser, 'User created successfully', 201, req, res, true)
 })
 
 const login = catchAsync(async (req, res, next) => {
@@ -71,7 +73,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Wrong password', 401))
   }
 
-  sendToken(user, 'Logged in successfully', 200, res)
+  sendToken(user, 'Logged in successfully', 200, req, res)
 })
 
 const logout = (req, res) => {
@@ -140,7 +142,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   // 3) Create JWT and log user in
-  sendToken(user, 'Password has been updated successfully', 200, res)
+  sendToken(user, 'Password has been updated successfully', 200, req, res)
 })
 
 const updatePassword = catchAsync(async (req, res, next) => {
@@ -168,7 +170,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
   await user.save()
 
   // 4) Send JWT, log user in
-  sendToken(user, 'Password has been updated successfully', 200, res)
+  sendToken(user, 'Password has been updated successfully', 200, req, res)
 })
 
 module.exports = {

@@ -40,6 +40,9 @@ const passwordLimiter = rateLimit({
 app.set('view engine', 'pug')
 app.set('views', path.join(__dirname, 'views'))
 
+// Used in req.headers['x-forwarded-proto'] === 'https' which is sepcific to Heroku deploy
+app.enable('trust proxy')
+
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -69,8 +72,15 @@ route(app)
 // Make sure values added must be predefined by Schema, otherwise it would not be saved
 mongoose.set('strictQuery', true)
 connect()
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`.bold.blue)
   // importData()
   // deleteData()
+})
+
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM RECEIVED. Shutting down gracefully')
+  server.close(() => {
+    console.log('💥 Process terminated!')
+  })
 })
