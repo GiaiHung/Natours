@@ -20,6 +20,7 @@ const {
   contentSecurityPolicy,
   hppWhitelist,
 } = require('./utils/middlewareConfig')
+const { webhookCheckout } = require('./controllers/booking')
 // const { importData, deleteData } = require('./dev-data/data/import-data')
 
 handleRejection()
@@ -59,6 +60,12 @@ app.use(helmet.contentSecurityPolicy(contentSecurityPolicy))
 // Set limit on requests
 app.use('/api', limiter)
 app.use('/api/v1/auth/login', passwordLimiter)
+// Stripe webhook, stripe need whole body stream not json. So that this route must come before app.use(express.json({ limit: '20kb' })), but we still need to parse the body as raw format
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout
+)
 // Parse the body from request into usable req.body, limit the data receive
 app.use(express.json({ limit: '20kb' }))
 app.use(cookieParser())

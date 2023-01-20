@@ -1,18 +1,16 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const Tours = require('../../models/Tours')
 const Booking = require('../../models/Booking')
-// const AppError = require('../../utils/appError')
 const catchAsync = require('../../utils/catchAsync')
 const { getAll, getOne, updateOne, deleteOne } = require('../handler')
 const AppError = require('../../utils/appError')
+const User = require('../../models/User')
 
 const getCheckourSession = catchAsync(async (req, res, next) => {
   const tour = await Tours.findById(req.params.tourId)
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    success_url: `${req.protocol}://${req.get('host')}/?tour=${
-      req.params.tourId
-    }&user=${req.user.id}&price=${tour.price}`,
+    success_url: `${req.protocol}://${req.get('host')}/`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
     client_reference_id: req.params.tourId,
@@ -39,17 +37,35 @@ const getCheckourSession = catchAsync(async (req, res, next) => {
   })
 })
 
-const createBookingCheckout = catchAsync(async (req, res, next) => {
-  const { tour, user, price } = req.query
+const createBookingCheckout = catchAsync(async (session) => {
+  const tour = session.client_reference_id
+  const user = (await User.findOne({ email: session.customer_email }))._id
+  const price = session.line_items[0].price_data.unit_amount / 100
+  await Booking.create({ tour, user, price })
+})
 
-  if (!tour || !user || !price) {
-    return next()
+// Stripe will call this webhook whenever customer paid the invoice
+const webhookCheckout = (req, res, next) => {
+  // eslint-disable-next-line dot-notation
+  const signature = req.headers['stripe-signature']
+  // body must be in raw form - stream
+  let event
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    )
+  } catch (error) {
+    console.log(`⚠️  Webhook signature verification failed.`, error.message)
+    return res.sendStatus(400)
   }
 
-  await Booking.create({ tour, user, price })
-  // Render homepage then make the url look better
-  res.redirect(req.originalUrl.split('?')[0])
-})
+  if (event.type === 'checkout.session.completed')
+    createBookingCheckout(event.data.object)
+
+  res.status(200).json({ received: true })
+}
 
 const addBooking = catchAsync(async (req, res, next) => {
   const existingBooking = await Booking.countDocuments({
@@ -77,7 +93,7 @@ const deleteBooking = deleteOne(Booking)
 
 module.exports = {
   getCheckourSession,
-  createBookingCheckout,
+  webhookCheckout,
   getAllBookings,
   getBooking,
   addBooking,
