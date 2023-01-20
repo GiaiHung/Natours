@@ -25,11 +25,9 @@ const getCheckourSession = catchAsync(async (req, res, next) => {
             name: `${tour.name} Tour`,
             description: tour.summary,
             images: [
-              [
-                `${req.protocol}://${req.get('host')}/img/tours/${
-                  tour.imageCover
-                }`,
-              ],
+              `${req.protocol}://${req.get('host')}/img/tours/${
+                tour.imageCover
+              }`,
             ],
           },
         },
